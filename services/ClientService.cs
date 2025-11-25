@@ -17,7 +17,7 @@ namespace ca_api.Services
         // GET all clients
         public List<Client> GetAll()
         {
-            Thread.Sleep(500); // Simulate delay
+            Console.WriteLine("inside get all service");
             return _context.Clients.ToList();
         }
 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ca-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+464c1d78cfe3a3bcc35869c262fdfb6d3f30a540")]
 [assembly: System.Reflection.AssemblyProductAttribute("ca-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ca-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
