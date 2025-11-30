@@ -3,9 +3,9 @@ namespace ca_api.Models
 {
     public class Activity:AuditFields
     {
-        public string Id { get; set; } = string.Empty;
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
-        public string ServiceId { get; set; } = string.Empty;
+        public Guid ServiceId { get; set; }
         public Service Service { get; set; } = null!; // Navigation property
         public Frequency? Frequency { get; set; }
         public decimal Amount { get; set; }
@@ -21,4 +21,15 @@ namespace ca_api.Models
         Quarterly,
         Yearly
     }
+
+    public class CreateActivityDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public Frequency? Frequency { get; set; }
+        public decimal Amount { get; set; }
+        public string? FinancialYear { get; set; }
+        public DateTime? Deadline { get; set; }
+    }
+
+
 }

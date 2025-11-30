@@ -4,13 +4,14 @@ using ca_api.Models;
 
 namespace ca_api.Data
 {
-    public class AppDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
         
         public DbSet<Client> Clients { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Activity> Activities { get; set; }
+        public DbSet<ClientServiceMapping> ClientServiceMappings { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,6 +22,7 @@ namespace ca_api.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+               
             });
              // Service configuration
             modelBuilder.Entity<Service>(entity =>
@@ -29,7 +31,11 @@ namespace ca_api.Data
                 entity.Property(e => e.Status).HasConversion<string>();
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-                
+                 // Configure one-to-many relationship with Activities
+                entity.HasMany(s => s.Activities)
+                      .WithOne(a => a.Service)
+                      .HasForeignKey(a => a.ServiceId)
+                      .OnDelete(DeleteBehavior.Cascade);
             // Activity configuration
             modelBuilder.Entity<Activity>(entity =>
             {
@@ -46,6 +52,7 @@ namespace ca_api.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
             });
+            
         }
     }
 }
