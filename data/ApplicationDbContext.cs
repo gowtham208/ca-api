@@ -63,6 +63,9 @@ namespace ca_api.Data
             modelBuilder.Entity<Ticket>(entity =>
     {
         entity.HasKey(t => t.Id);
+        entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
 
         // Client → Tasks (1 : many)
         entity.HasOne(t => t.Client)
@@ -103,6 +106,10 @@ namespace ca_api.Data
 {
     // ✅ Primary key
     entity.HasKey(u => u.Id);
+    entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+    entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+    
 
     // ✅ Properties configuration
     entity.Property(u => u.Name)

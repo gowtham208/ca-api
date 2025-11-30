@@ -3,6 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL; // Add this line
 using ca_api.Data;
 using ca_api.Services;
 using ca_api.interfaces;
+using ca_api.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

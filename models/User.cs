@@ -22,5 +22,27 @@ namespace ca_api.Models
         Guest
     }
 
+    public class CreateUserDto
+    {
+        public string Name { get; set; } = string.Empty;
+
+        public string Email { get; set; } = string.Empty;
+
+        public UserRole Role { get; set; } = UserRole.Standard;
+
+    }
+
+    public class AssignTicketsToUserDto
+{
+    public Guid UserId { get; set; }
+    public List<Guid> TicketIds { get; set; } = new();
+}
+
+public class AssignClientsToUserDto
+{
+    public Guid UserId { get; set; }
+    public List<Guid> ClientIds { get; set; } = new();
+}
+
     
 }
