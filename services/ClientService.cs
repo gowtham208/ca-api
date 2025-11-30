@@ -1,116 +1,53 @@
-// // Services/ClientService.cs
-// using ca_api.Data;
-// using ca_api.Models;
-// using Microsoft.EntityFrameworkCore;
+using ca_api.Data;
+using ca_api.Models;
+using ca_api.Interfaces;
 
-// namespace ca_api.Services
-// {
-//     public class ClientService
-//     {
-//         private readonly AppDbContext _context;
+namespace ca_api.Services
+{
+    public class ClientService : IClientService
+    {
+        private readonly ApplicationDbContext _db;
+        private readonly ILogger<ClientService> _logger;
 
-//         public ClientService(AppDbContext context)
-//         {
-//             _context = context;
-//         }
 
-//         // GET all clients
-//         public List<Client> GetAll()
-//         {
-//             Console.WriteLine("inside get all service");
-//             return _context.Clients.ToList();
-//         }
+        public ClientService(ApplicationDbContext db,ILogger<ClientService> logger)
+        {
+            _db = db;
+            _logger = logger;
+        }
 
-//         // GET client by ID
-//         public Client? GetById(string id)
-//         {
-//             var client = _context.Clients.Find(id);
-//             return client;
-//         }
+        public List<Client> GetAll()
+        {
+            return _db.Clients.ToList();
+        }
 
-//         // CREATE new client
-//         public Client Create(Client clientData)
-//         {
-//             Thread.Sleep(500);
-//             var newClient = new Client
-//             {
-//                 Id = Guid.NewGuid(),
-//                 Name = clientData.Name,
-//                 Email = clientData.Email,
-//                 Phone = clientData.Phone,
-//                 BusinessType = clientData.BusinessType,
-//                 Address = clientData.Address,
-//                 City = clientData.City,
-//                 State = clientData.State,
-//                 PinCode = clientData.PinCode,
-//                 CreatedAt = DateTime.UtcNow,
-//                 UpdatedAt = DateTime.UtcNow
-//             };
+        public Client? GetById(Guid id)
+        {
+            return _db.Clients.FirstOrDefault(c => c.Id == id);
+        }
 
-//             _context.Clients.Add(newClient);
-//             _context.SaveChanges();
-            
-//             Console.WriteLine($"Creating client: {newClient.Name}");
-//             return newClient;
-//         }
+        public Client Create(CreateClientDto dto)
+        {
+            var client = new Client
+            {
+                Id = Guid.NewGuid(),
+                Name = dto.Name,
+                Email = dto.Email,
+                Phone = dto.Phone,
+                BusinessType = dto.BusinessType,
+                Address = dto.Address,
+                City = dto.City,
+                State = dto.State,
+                PinCode = dto.PinCode
+                // UserId intentionally NOT set (optional relationship)
+            };
 
-//         // UPDATE client
-//         public Client Update(string id, Client clientData)
-//         {
-//             Thread.Sleep(500);
-//             var existingClient = _context.Clients.Find(id);
-            
-//             if (existingClient == null)
-//             {
-//                 throw new Exception($"Client with id {id} not found");
-//             }
+            _db.Clients.Add(client);
+            _db.SaveChanges();
+         _logger.LogInformation("client created. clientId: {ClientId}", client.Id);
 
-//             existingClient.Name = clientData.Name;
-//             existingClient.Email = clientData.Email;
-//             existingClient.Phone = clientData.Phone;
-//             existingClient.BusinessType = clientData.BusinessType;
-//             existingClient.Address = clientData.Address;
-//             existingClient.City = clientData.City;
-//             existingClient.State = clientData.State;
-//             existingClient.PinCode = clientData.PinCode;
-//             existingClient.UpdatedAt = DateTime.UtcNow;
 
-//             _context.Clients.Update(existingClient);
-//             _context.SaveChanges();
-
-//             Console.WriteLine($"Updating client: {existingClient.Name}");
-//             return existingClient;
-//         }
-
-//         // DELETE client
-//         public void Delete(string id)
-//         {
-//             Thread.Sleep(300);
-//             var client = _context.Clients.Find(id);
-            
-//             if (client == null)
-//             {
-//                 throw new Exception($"Client with id {id} not found");
-//             }
-
-//             _context.Clients.Remove(client);
-//             _context.SaveChanges();
-
-//             Console.WriteLine($"Deleting client: {client.Name}");
-//         }
-
-//         // SEARCH clients
-//         public List<Client> Search(string query)
-//         {
-//             Thread.Sleep(400);
-//             var lowerQuery = query.ToLower();
-            
-//             return _context.Clients
-//                 .Where(client =>
-//                     client.Name.ToLower().Contains(lowerQuery) ||
-//                     client.Email.ToLower().Contains(lowerQuery) ||
-//                     client.BusinessType.ToLower().Contains(lowerQuery))
-//                 .ToList();
-//         }
-//     }
-// }
+            return client;
+        }
+    }
+}

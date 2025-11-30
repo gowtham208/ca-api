@@ -1,116 +1,46 @@
-// // Controllers/ClientsController.cs
-// using Microsoft.AspNetCore.Mvc;
-// using ca_api.Models;
-// using ca_api.Services;
+using ca_api.Models;
+using ca_api.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
-// namespace ca_api.Controllers
-// {
-//     [ApiController]
-//     [Route("api/[controller]")]
-//     public class ClientsController : ControllerBase
-//     {
-//         private readonly ClientService _clientService;
+namespace ca_api.Controllers
+{
+    [ApiController]
+    [Route("api/clients")]
+    public class ClientsController : ControllerBase
+    {
+        private readonly IClientService _clientService;
 
-//         public ClientsController(ClientService clientService)
-//         {
-//             _clientService = clientService;
-//         }
+        public ClientsController(IClientService clientService)
+        {
+            _clientService = clientService;
+        }
 
-//         [HttpGet]
-//         public ActionResult<List<Client>> GetAll()
-//         {
-//             try
-//             {
-//                 Console.WriteLine("inside get all");
-//                 var clients = _clientService.GetAll();
-//                 return Ok(clients);
-//             }
-//             catch (Exception ex)
-//             {
-//                 return StatusCode(500, $"Internal server error: {ex.Message}");
-//             }
-//         }
+        // GET: api/clients
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            var clients = _clientService.GetAll();
+            return Ok(clients);
+        }
 
-//         [HttpGet("{id}")]
-//         public ActionResult<Client> GetById(string id)
-//         {
-//             try
-//             {
-//                 var client = _clientService.GetById(id);
-//                 if (client == null)
-//                 {
-//                     return NotFound($"Client with ID {id} not found");
-//                 }
-//                 return Ok(client);
-//             }
-//             catch (Exception ex)
-//             {
-//                 return StatusCode(500, $"Internal server error: {ex.Message}");
-//             }
-//         }
+        // GET: api/clients/{id}
+        [HttpGet("{id}")]
+        public IActionResult GetById(Guid id)
+        {
+            var client = _clientService.GetById(id);
 
-//         [HttpPost]
-//         public ActionResult<Client> Create([FromBody] Client clientData)
-//         {
-//             try
-//             {
-//                 var client = _clientService.Create(clientData);
-//                 return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
-//             }
-//             catch (Exception ex)
-//             {
-//                 return BadRequest($"Error creating client: {ex.Message}");
-//             }
-//         }
+            if (client == null)
+                return NotFound("Client not found");
 
-//         [HttpPut("{id}")]
-//         public ActionResult<Client> Update(string id, [FromBody] Client clientData)
-//         {
-//             try
-//             {
-//                 var client = _clientService.Update(id, clientData);
-//                 return Ok(client);
-//             }
-//             catch (Exception ex)
-//             {
-//                 if (ex.Message.Contains("not found"))
-//                 {
-//                     return NotFound(ex.Message);
-//                 }
-//                 return BadRequest($"Error updating client: {ex.Message}");
-//             }
-//         }
+            return Ok(client);
+        }
 
-//         [HttpDelete("{id}")]
-//         public IActionResult Delete(string id)
-//         {
-//             try
-//             {
-//                 _clientService.Delete(id);
-//                 return NoContent();
-//             }
-//             catch (Exception ex)
-//             {
-//                 if (ex.Message.Contains("not found"))
-//                 {
-//                     return NotFound(ex.Message);
-//                 }
-//                 return BadRequest($"Error deleting client: {ex.Message}");
-//             }
-//         }
-
-//         [HttpGet("search")]
-//         public ActionResult<List<Client>> Search([FromQuery] string query)
-//         {
-//             try
-//             {
-//                 var clients = _clientService.Search(query);
-//                 return Ok(clients);
-//             }
-//             catch (Exception ex)
-//             {
-//                 return StatusCode(500, $"Internal server error: {ex.Message}");
-//             }
-//         }
-//     }
-// }
+        // POST: api/clients
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateClientDto dto)
+        {
+            var client = _clientService.Create(dto);
+            return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
+        }
+    }
+}
