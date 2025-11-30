@@ -25,6 +25,12 @@ namespace ca_api.Data
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                entity.HasOne(c => c.User)
+          .WithMany(u => u.Clients)
+          .HasForeignKey(c => c.UserId)
+          .IsRequired(false)
+          .OnDelete(DeleteBehavior.SetNull);
+
             });
             // Service configuration
             modelBuilder.Entity<Service>(entity =>
@@ -80,6 +86,7 @@ namespace ca_api.Data
         entity.HasOne(t => t.User)
               .WithMany(u => u.Tickets)
               .HasForeignKey(t => t.UserId)
+              .IsRequired()
               .OnDelete(DeleteBehavior.Restrict);
 
         entity.Property(t => t.Name)
@@ -92,6 +99,36 @@ namespace ca_api.Data
         entity.Property(t => t.Status)
               .IsRequired();
     });
+        modelBuilder.Entity<User>(entity =>
+{
+    // ✅ Primary key
+    entity.HasKey(u => u.Id);
+
+    // ✅ Properties configuration
+    entity.Property(u => u.Name)
+          .IsRequired()
+          .HasMaxLength(150);
+
+    entity.Property(u => u.Email)
+          .IsRequired()
+          .HasMaxLength(200);
+
+    entity.Property(u => u.Role)
+          .HasConversion<string>()   // Enum stored as text
+          .IsRequired();
+
+    // ✅ User → Tickets (1 : many, required on Ticket)
+    entity.HasMany(u => u.Tickets)
+          .WithOne(t => t.User)
+          .HasForeignKey(t => t.UserId)
+          .OnDelete(DeleteBehavior.Restrict);
+
+    // ✅ User → Clients (1 : many, optional on Client)
+    entity.HasMany(u => u.Clients)
+          .WithOne(c => c.User)
+          .HasForeignKey(c => c.UserId)
+          .OnDelete(DeleteBehavior.SetNull);
+});
         }
     }
 }

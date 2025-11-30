@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ca_api.Data;
@@ -11,9 +12,11 @@ using ca_api.Data;
 namespace ca_api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251130154721_updating client model")]
+    partial class updatingclientmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,17 +287,14 @@ namespace ca_api.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -341,9 +341,8 @@ namespace ca_api.Migrations
             modelBuilder.Entity("ca_api.Models.Client", b =>
                 {
                     b.HasOne("ca_api.Models.User", "User")
-                        .WithMany("Clients")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -404,8 +403,6 @@ namespace ca_api.Migrations
 
             modelBuilder.Entity("ca_api.Models.User", b =>
                 {
-                    b.Navigation("Clients");
-
                     b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618

@@ -9,7 +9,9 @@ namespace ca_api.Models
 
         public UserRole Role { get; set; } = UserRole.Standard;
 
-        public List<Ticket> Tickets { get; set; } = new List<Ticket>();       
+        public List<Ticket>? Tickets { get; set; } = new List<Ticket>();    
+
+        public List<Client>? Clients { get; set; } = new List<Client>();   
         
     }
 
