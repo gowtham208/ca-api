@@ -8,6 +8,8 @@ namespace ca_api.Models
         public ServiceStatus Status { get; set; } = ServiceStatus.Active;
 
         public List<Activity> Activities { get; set; } = new List<Activity>();
+
+        public List<Ticket> Tickets { get; set; } = new List<Ticket>();
         
     }
 

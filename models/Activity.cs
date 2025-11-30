@@ -11,6 +11,8 @@ namespace ca_api.Models
         public decimal Amount { get; set; }
         public DateTime? Deadline { get; set; }
         public string? FinancialYear { get; set; }
+
+        public List<Ticket> Tickets { get; set; } = new List<Ticket>();
         
         
     }

@@ -14,6 +14,7 @@ namespace ca_api.Models
         public string State { get; set; } = string.Empty;
         public string PinCode { get; set; } = string.Empty;
         public List<ClientServiceMapping>? clientService{ get; set; } = new List<ClientServiceMapping>();
+        public List<Ticket> Tickets { get; set; } = new List<Ticket>();
 
     }
 
