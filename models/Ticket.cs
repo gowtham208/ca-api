@@ -47,6 +47,8 @@ namespace ca_api.Models
         public Priority Priority { get; set; } = Priority.Medium;
         public Status Status { get; set; } = Status.Pending;
         public DateTime? DeadLine { get; set; }
+
+        public Guid UserId { get; set;}
     }
 
 
