@@ -29,11 +29,4 @@ public class CreateServiceDto
 
 }
 
-    public class ServiceSelectionDTO
-    {
-        public Guid SelectedServiceID{ get; set; }
-        public List<Guid> SelectedActivityIds { get; set; } = new List<Guid>();
-
-
-    }
 // }

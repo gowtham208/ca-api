@@ -25,29 +25,74 @@ namespace ca_api.Services
         {
             return _db.Clients.FirstOrDefault(c => c.Id == id);
         }
+public void Create(ClientOnboardingDto dto)
+{
+    using var tx = _db.Database.BeginTransaction();
 
-        public Client Create(CreateClientDto dto)
+    try
+    {
+        // 1️⃣ Create client
+        var client = new Client
         {
-            var client = new Client
+            Name = dto.Client.Name,
+            Email = dto.Client.Email,
+            Phone = dto.Client.Phone,
+            BusinessType = dto.Client.BusinessType,
+            Address = dto.Client.Address,
+            City = dto.Client.City,
+            State = dto.Client.State,
+            PinCode = dto.Client.PinCode,
+            UserId = dto.Client.UserId
+        };
+
+        _db.Clients.Add(client);
+        _db.SaveChanges();
+
+        // 2️⃣ Create service mappings
+        foreach (var svc in dto.Services)
+        {
+            var serviceExists = _db.Services.Any(s => s.Id == svc.ServiceId);
+            if (!serviceExists)
+                throw new Exception("Invalid Service");
+
+            var clientService = new ca_api.Models.ClientService
             {
-                Id = Guid.NewGuid(),
-                Name = dto.Name,
-                Email = dto.Email,
-                Phone = dto.Phone,
-                BusinessType = dto.BusinessType,
-                Address = dto.Address,
-                City = dto.City,
-                State = dto.State,
-                PinCode = dto.PinCode
-                // UserId intentionally NOT set (optional relationship)
+                ClientId = client.Id,
+                ServiceId = svc.ServiceId,
+                StartedOn = DateTime.UtcNow
             };
 
-            _db.Clients.Add(client);
+            _db.ClientServices.Add(clientService);
             _db.SaveChanges();
-         _logger.LogInformation("client created. clientId: {ClientId}", client.Id);
 
+            // 3️⃣ Create activity mappings
+            foreach (var activityId in svc.ActivityIds)
+            {
+                var validActivity = _db.Activities.Any(a =>
+                    a.Id == activityId && a.ServiceId == svc.ServiceId);
 
-            return client;
+                if (!validActivity)
+                    throw new Exception("Invalid Activity");
+
+                _db.ClientServiceActivities.Add(
+                    new ClientServiceActivity
+                    {
+                        ClientServiceId = clientService.Id,
+                        ActivityId = activityId,
+                        //SubscribedOn = DateTime.UtcNow
+                    });
+            }
         }
+
+        _db.SaveChanges();
+        tx.Commit();
+    }
+    catch
+    {
+        tx.Rollback();
+        throw;
+    }
+}
+
     }
 }

@@ -6,6 +6,6 @@ namespace ca_api.Interfaces
     {
         List<Client> GetAll();
         Client? GetById(Guid id);
-        Client Create(CreateClientDto dto);
+        void Create( ClientOnboardingDto dto);
     }
 }

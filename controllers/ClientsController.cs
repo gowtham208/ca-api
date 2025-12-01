@@ -37,10 +37,10 @@ namespace ca_api.Controllers
 
         // POST: api/clients
         [HttpPost]
-        public IActionResult Create([FromBody] CreateClientDto dto)
+        public IActionResult Create([FromBody] ClientOnboardingDto dto)
         {
-            var client = _clientService.Create(dto);
-            return CreatedAtAction(nameof(GetById), new { id = client.Id }, client);
+            _clientService.Create(dto);
+            return Ok();
         }
     }
 }

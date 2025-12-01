@@ -11,10 +11,11 @@ namespace ca_api.Data
         public DbSet<Client> Clients { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Activity> Activities { get; set; }
-        public DbSet<ClientServiceMapping> ClientServiceMappings { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<ClientService> ClientServices { get; set; }
+        public DbSet<ClientServiceActivity> ClientServiceActivities { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -136,6 +137,57 @@ namespace ca_api.Data
           .HasForeignKey(c => c.UserId)
           .OnDelete(DeleteBehavior.SetNull);
 });
+         modelBuilder.Entity<ClientService>(entity =>
+    {
+        entity.HasKey(cs => cs.Id);
+
+        entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+        entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        // Client → ClientServices (1 : many)
+        entity.HasOne(cs => cs.Client)
+              .WithMany() // or c.ClientServices if you add it later
+              .HasForeignKey(cs => cs.ClientId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+        // Service → ClientServices (1 : many)
+        entity.HasOne(cs => cs.Service)
+              .WithMany() // or s.ClientServices if you add it later
+              .HasForeignKey(cs => cs.ServiceId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+        // ClientService → Activities (1 : many)
+        entity.HasMany(cs => cs.Activities)
+              .WithOne(csa => csa.ClientService)
+              .HasForeignKey(csa => csa.ClientServiceId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+        // ✅ Prevent duplicate service per client
+        entity.HasIndex(cs => new { cs.ClientId, cs.ServiceId })
+              .IsUnique();
+    });
+    modelBuilder.Entity<ClientServiceActivity>(entity =>
+    {
+        entity.HasKey(csa => csa.Id);
+
+        // ClientService → ClientServiceActivities (1 : many)
+        entity.HasOne(csa => csa.ClientService)
+              .WithMany(cs => cs.Activities)
+              .HasForeignKey(csa => csa.ClientServiceId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+        // Activity → ClientServiceActivities (1 : many)
+        entity.HasOne(csa => csa.Activity)
+              .WithMany() // or a.ClientServiceActivities if added later
+              .HasForeignKey(csa => csa.ActivityId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+        // ✅ Prevent duplicate activity under same service
+        entity.HasIndex(csa => new { csa.ClientServiceId, csa.ActivityId })
+              .IsUnique();
+    });
         }
+        
+        
     }
 }
