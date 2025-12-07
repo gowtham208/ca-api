@@ -1,6 +1,7 @@
 using ca_api.Data;
 using ca_api.Models;
 using ca_api.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace ca_api.Services
 {
@@ -16,15 +17,90 @@ namespace ca_api.Services
             _logger = logger;
         }
 
-        public List<Client> GetAll()
+public List<ClientResponseDto> GetAll()
+{
+  var clients = _db.Clients
+        .Include(c => c.ClientServices)
+            .ThenInclude(cs => cs.Service)
+        .Include(c => c.ClientServices)
+            .ThenInclude(cs => cs.Activities)
+                .ThenInclude(csa => csa.Activity).Include(c=>c.User)
+       // This splits the query for PostgreSQL
+        .ToList();
+    return clients.Select(c => new ClientResponseDto
+    {
+        Id = c.Id,
+        Name = c.Name,
+        Email = c.Email,
+        Phone = c.Phone,
+        BusinessType = c.BusinessType,
+        Address = c.Address,
+        City = c.City,
+        State = c.State,
+        PinCode = c.PinCode,
+        UserId = c.UserId.GetValueOrDefault(),
+        UserName= c.User != null ? c.User.Name : string.Empty,
+        Services = c.ClientServices.Select(cs => new ClientServiceInfoDto
         {
-            return _db.Clients.ToList();
-        }
+            ServiceId = cs.ServiceId,
+            ServiceName = cs.Service.Name,
+            Activities = cs.Activities.Select(a => new ActivityInfoDto
+            {
+                ActivityId = a.ActivityId,
+                ActivityName = a.Activity.Name
+            }).ToList()
 
-        public Client? GetById(Guid id)
+        }).ToList()
+
+    }).ToList();
+}
+public ClientResponseDto? GetById(Guid id)
+{
+    // 1. Eagerly Load all necessary related data using Includes
+    var client = _db.Clients
+        .Include(c => c.ClientServices)
+            .ThenInclude(cs => cs.Service)
+        .Include(c => c.ClientServices)
+            .ThenInclude(cs => cs.Activities)
+                .ThenInclude(csa => csa.Activity).Include(c=>c.User)
+        .FirstOrDefault(c => c.Id == id);
+
+    // Check if the client was found
+    if (client == null)
+    {
+        return null;
+    }
+
+    // 2. Project/Map the Client entity into a ClientResponseDto
+    // This mapping logic is the same as the one used in your GetAll() method.
+    var clientResponseDto = new ClientResponseDto
+    {
+        Id = client.Id,
+        Name = client.Name,
+        Email = client.Email,
+        Phone = client.Phone,
+        BusinessType = client.BusinessType,
+        Address = client.Address,
+        City = client.City,
+        State = client.State,
+        PinCode = client.PinCode,
+        UserId = client.UserId.GetValueOrDefault(),
+        UserName= client.User != null ? client.User.Name : string.Empty,
+
+        Services = client.ClientServices.Select(cs => new ClientServiceInfoDto
         {
-            return _db.Clients.FirstOrDefault(c => c.Id == id);
-        }
+            ServiceId = cs.ServiceId,
+            ServiceName = cs.Service.Name,
+            Activities = cs.Activities.Select(a => new ActivityInfoDto
+            {
+                ActivityId = a.ActivityId,
+                ActivityName = a.Activity.Name
+            }).ToList()
+        }).ToList()
+    };
+
+    return clientResponseDto;
+}
 public void Create(ClientOnboardingDto dto)
 {
     using var tx = _db.Database.BeginTransaction();
@@ -96,3 +172,8 @@ public void Create(ClientOnboardingDto dto)
 
     }
 }
+
+
+ // select * from Clients c left join ClientServices cs on c.Id=cs.ClientId 
+ // left join Services s on cs.ServiceId=s.Id left join ClientServiceActivities csa on cs.Id=csa.ClientServiceId
+ // left join Activities a on csa.ActivityId=a.Id;

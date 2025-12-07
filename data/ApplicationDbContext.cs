@@ -146,9 +146,10 @@ namespace ca_api.Data
 
         // Client → ClientServices (1 : many)
         entity.HasOne(cs => cs.Client)
-              .WithMany() // or c.ClientServices if you add it later
-              .HasForeignKey(cs => cs.ClientId)
-              .OnDelete(DeleteBehavior.Restrict);
+      // Explicitly confirm the navigation property on the Client side
+      .WithMany(c => c.ClientServices) 
+      .HasForeignKey(cs => cs.ClientId)
+      .OnDelete(DeleteBehavior.Restrict);
 
         // Service → ClientServices (1 : many)
         entity.HasOne(cs => cs.Service)

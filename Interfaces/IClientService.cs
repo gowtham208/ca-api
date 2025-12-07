@@ -4,8 +4,8 @@ namespace ca_api.Interfaces
 {
     public interface IClientService
     {
-        List<Client> GetAll();
-        Client? GetById(Guid id);
+        List<ClientResponseDto> GetAll();
+        ClientResponseDto? GetById(Guid id);
         void Create( ClientOnboardingDto dto);
     }
 }
